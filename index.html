@@ -1,6 +1,6 @@
 <!doctype html>
 <!--
-  Retrouve le supermarché — Journées Nationales d'Action contre l'Illettrisme
+  Trouver le supermarché — Journées Nationales d'Action contre l'Illettrisme
   Auteurs : AVES & Devenir en Vermandois – En Terre Connectée
 
   Ce travail est mis à disposition sous licence Creative Commons
@@ -11,7 +11,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
-<title>Trouve le supermarché — JNAI</title>
+<title>Trouver le supermarché — JNAI</title>
 <style>
   :root {
     --fond: #1d2430;
@@ -34,7 +34,7 @@
   #ecran-reglages { z-index: 20; }
   .btn-rond {
     width: 52px; height: 52px; border-radius: 50%; border: none; cursor: pointer;
-    background: rgba(255,255,255,.94); font-size: 24px; line-height: 1;
+    background: rgba(255,255,255,.94); color: var(--encre); display: grid; place-items: center;
     box-shadow: 0 2px 10px rgba(0,0,0,.35);
   }
   .btn-rond:active { transform: scale(.94); }
@@ -45,13 +45,13 @@
     transform: translate(-50%, -140%); transition: transform .35s ease;
     display: flex; align-items: center; gap: 12px;
     background: #fff; border-radius: 999px; padding: 10px 22px 10px 12px;
-    box-shadow: 0 6px 22px rgba(0,0,0,.4); font-weight: 800; font-size: 22px;
+    box-shadow: 0 6px 22px rgba(0,0,0,.4); font-weight: 700; font-size: 20px;
     max-width: calc(100vw - 150px); white-space: nowrap;
   }
   .repere.visible { transform: translate(-50%, 0); }
   .repere .pastille {
-    width: 44px; height: 44px; border-radius: 50%; display: grid; place-items: center;
-    font-size: 26px; background: #fde7c7; flex: none;
+    width: 40px; height: 40px; border-radius: 50%; display: grid; place-items: center;
+    background: #fbe3dc; color: var(--accent); flex: none;
   }
 
   /* Croix directionnelle tactile */
@@ -61,7 +61,8 @@
   }
   .croix[hidden] { display: none; }
   .croix button {
-    border: none; border-radius: 14px; font-size: 26px; cursor: pointer;
+    border: none; border-radius: 14px; cursor: pointer; color: var(--encre);
+    display: grid; place-items: center;
     background: rgba(255,255,255,.88); box-shadow: 0 2px 8px rgba(0,0,0,.35); touch-action: none;
   }
   .croix button.actif { background: #ffd9b8; }
@@ -119,7 +120,6 @@
     box-shadow: 0 2px 10px rgba(0,0,0,.35); transition: background .3s;
   }
   .compteur[hidden] { display: none; }
-  .compteur .icone { font-size: 26px; }
   .compteur b { font-size: 34px; line-height: 1; min-width: 1.6em; text-align: center; }
   .compteur small { color: var(--doux); font-weight: 700; font-size: 12px; line-height: 1.2; }
   .compteur.alerte { background: #ffe1d6; animation: pulse 1s ease-in-out infinite; }
@@ -158,42 +158,42 @@
 
 <canvas id="jeu"></canvas>
 
-<div class="repere" id="repere"><span class="pastille" id="repere-icone"></span><span id="repere-nom"></span></div>
+<div class="repere" id="repere"><span class="pastille"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 21s-7-6.2-7-11.5A7 7 0 0 1 19 9.5C19 14.8 12 21 12 21z"/><circle cx="12" cy="9.5" r="2.5"/></svg></span><span id="repere-nom"></span></div>
 
 <div class="compteur" id="compteur" hidden>
-  <span class="icone">👣</span><b id="compteur-reste">0</b><small>pas<br>restants</small>
+  <b id="compteur-reste">0</b><small>pas<br>restants</small>
 </div>
 
 <div class="hud">
-  <button class="btn-rond" id="btn-reglages" title="Réglages animateur" aria-label="Réglages">⚙️</button>
+  <button class="btn-rond" id="btn-reglages" title="Réglages animateur" aria-label="Réglages"><svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg></button>
 </div>
 
 <div class="croix" id="croix" hidden>
-  <button class="h" data-dir="haut" aria-label="Haut">▲</button>
-  <button class="g" data-dir="gauche" aria-label="Gauche">◀</button>
-  <button class="d" data-dir="droite" aria-label="Droite">▶</button>
-  <button class="b" data-dir="bas" aria-label="Bas">▼</button>
+  <button class="h" data-dir="haut" aria-label="Haut"><svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 15l6-6 6 6"/></svg></button>
+  <button class="g" data-dir="gauche" aria-label="Gauche"><svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 6l-6 6 6 6"/></svg></button>
+  <button class="d" data-dir="droite" aria-label="Droite"><svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg></button>
+  <button class="b" data-dir="bas" aria-label="Bas"><svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg></button>
 </div>
 
 <div class="bandeau-choix" id="bandeau-choix" hidden>
-  <span id="texte-choix">📍 Touchez une rue pour placer le départ</span>
+  <span id="texte-choix">Cliquez ou touchez une rue pour placer le départ</span>
   <button class="btn" id="btn-annuler-choix">Annuler</button>
 </div>
 
 <div class="barre-bilan" id="barre-bilan" hidden>
-  <button class="btn principal" id="btn-rejouer-bilan">↻ Rejouer</button>
+  <button class="btn principal" id="btn-rejouer-bilan">Rejouer</button>
 </div>
 
 <!-- Écran d'accueil -->
 <div class="ecran" id="ecran-accueil">
   <div class="boite">
-    <h1>Retrouve le supermarché</h1>
+    <h1>Trouver le supermarché</h1>
     <p class="sous">Journées Nationales d'Action contre l'Illettrisme</p>
-    <p>Tu pars d'un endroit de la ville. Ton objectif : trouver le <b>supermarché</b>.</p>
-    <p>Ici, <b>il n'y a aucun écrit</b> : seulement des bâtiments et des pictogrammes. Tu dois te repérer avec ce que tu vois et la voix qui te guide.</p>
-    <p>Déplace-toi avec les <b>flèches du clavier</b> ou les <b>boutons à l'écran</b>.</p>
+    <p>Vous partez d'un point de la ville. Objectif : rejoindre le <b>supermarché</b>.</p>
+    <p>La ville ne comporte <b>aucun écrit</b>, seulement des bâtiments et des pictogrammes. Repérez-vous grâce à ce que vous voyez et à la voix qui vous guide.</p>
+    <p>Déplacements : <b>flèches du clavier</b> ou <b>boutons à l'écran</b>.</p>
     <div class="actions">
-      <button class="btn principal" id="btn-commencer">▶ Commencer</button>
+      <button class="btn principal" id="btn-commencer">Commencer</button>
     </div>
     <p class="licence">
       Auteurs : AVES &amp; Devenir en Vermandois – En Terre Connectée<br>
@@ -205,7 +205,7 @@
 <!-- Écran de fin -->
 <div class="ecran" id="ecran-fin" hidden>
   <div class="boite">
-    <h1 id="titre-fin">🛒 Supermarché trouvé !</h1>
+    <h1 id="titre-fin">Supermarché atteint</h1>
     <p class="sous" id="message-fin" hidden></p>
     <div class="stats">
       <div class="stat"><b id="stat-temps">0:00</b><span>temps</span></div>
@@ -213,8 +213,8 @@
       <div class="stat"><b id="stat-lieux">0</b><span>lieux croisés</span></div>
     </div>
     <div class="actions">
-      <button class="btn principal" id="btn-trajet">Voir mon trajet</button>
-      <button class="btn" id="btn-rejouer">↻ Rejouer</button>
+      <button class="btn principal" id="btn-trajet">Voir le trajet</button>
+      <button class="btn" id="btn-rejouer">Rejouer</button>
     </div>
   </div>
 </div>
@@ -227,7 +227,7 @@
       <label for="opt-graine">Numéro de ville<small>Chaque numéro donne un plan de ville différent</small></label>
       <div class="graine">
         <input type="number" id="opt-graine" min="0" step="1" inputmode="numeric">
-        <button class="btn" id="btn-hasard" title="Numéro au hasard" aria-label="Numéro au hasard">🎲</button>
+        <button class="btn" id="btn-hasard" title="Numéro au hasard" aria-label="Numéro au hasard">Au hasard</button>
       </div>
     </div>
     <div class="actions" style="margin-top:12px">
@@ -238,7 +238,7 @@
       <select id="opt-depart"></select>
     </div>
     <div class="actions" style="margin-top:12px">
-      <button class="btn" id="btn-depart-carte">📍 Choisir sur la carte</button>
+      <button class="btn" id="btn-depart-carte">Choisir sur la carte</button>
     </div>
     <div class="reglage">
       <label for="opt-animateur">Mode animateur<small>Voir toute la carte, les noms des lieux et les zones de passage</small></label>
@@ -273,7 +273,7 @@
     </div>
     <div class="actions">
       <button class="btn principal" id="btn-fermer-reglages">Fermer</button>
-      <button class="btn" id="btn-recommencer">↻ Recommencer la partie</button>
+      <button class="btn" id="btn-recommencer">Recommencer la partie</button>
     </div>
   </div>
 </div>
@@ -281,7 +281,7 @@
 <script>
 /* ==========================================================================
    PLAN DE LA VILLE — généré automatiquement
-   - GRAINE : numéro de la ville par défaut (modifiable aussi depuis le menu ⚙️)
+   - GRAINE : numéro de la ville par défaut (modifiable aussi depuis le menu Réglages)
    - COLS / ROWS : taille de la carte en cases
    ========================================================================== */
 const T = 64;          // taille d'une case en pixels
@@ -390,14 +390,14 @@ function rueBarreePres(fx, fy) {
    CONFIGURATION — modifiable facilement
    ========================================================================== */
 const CONFIG = {
-  depart: null,              // par défaut devant la mairie ; modifiable depuis le menu ⚙️
+  depart: null,              // par défaut devant la mairie ; modifiable depuis le menu Réglages
   brouillard: true,          // vision limitée autour du joueur
   rayonVision: 3,            // en cases
   bandeau: true,             // afficher le nom du lieu au passage
   dureeBandeau: 2600,        // ms
   dureePas: 0.2,             // secondes pour avancer d'une case
   animateur: false,
-  pasMax: 0,                 // nombre de pas maximum (0 = illimité) ; modifiable depuis le menu ⚙️
+  pasMax: 0,                 // nombre de pas maximum (0 = illimité) ; modifiable depuis le menu Réglages
   compteur: true,            // afficher les pas restants pendant la partie
 };
 try {
@@ -408,22 +408,22 @@ try {
 
 /* Lieux repères. Les premiers de la liste sont placés en priorité. */
 const definirLieux = () => [
-  { id: 'mairie',      nom: 'Mairie',       icone: '🏛️', type: 'mairie',      ...lieuPres(.52, .45, 5) },
-  { id: 'supermarche', nom: 'Supermarché',  icone: '🛒', type: 'supermarche', ...lieuPres(.92, .94, 4), arrivee: true },
-  { id: 'ecole',       nom: 'École',        icone: '🏫', type: 'ecole',       ...lieuPres(.1, .08, 4) },
-  { id: 'gare',        nom: 'Gare',         icone: '🚆', type: 'gare',        ...lieuPres(.9, .08, 5) },
-  { id: 'square',      nom: 'Square',       icone: '🌳', type: 'parc',        ...lieuPres(.82, .3, 4) },
-  { id: 'poste',       nom: 'La Poste',     icone: '✉️', type: 'poste',       ...lieuPres(.28, .3, 3) },
-  { id: 'boulangerie', nom: 'Boulangerie',  icone: '🥖', type: 'boulangerie', ...lieuPres(.42, .3, 2) },
-  { id: 'arret-bus',   nom: 'Arrêt de bus', icone: '🚌', type: 'arret',       ...lieuPres(.7, .42, 2) },
-  { id: 'parc',        nom: 'Parc',         icone: '🌳', type: 'parc',        ...lieuPres(.08, .52, 4) },
-  { id: 'eglise',      nom: 'Église',       icone: '⛪', type: 'eglise',      ...lieuPres(.33, .58, 3) },
-  { id: 'pharmacie',   nom: 'Pharmacie',    icone: '💊', type: 'pharmacie',   ...lieuPres(.64, .62, 2) },
-  { id: 'place',       nom: 'Place de la fontaine', icone: '⛲', type: 'place', ...lieuPres(.42, .8, 4) },
-  { id: 'banque',      nom: 'Banque',       icone: '🏦', type: 'banque',      ...lieuPres(.72, .78, 3) },
-  { id: 'travaux-1',   nom: 'Rue barrée',   icone: '🚧', type: 'travaux',     ...rueBarreePres(.86, .85) },
-  { id: 'travaux-2',   nom: 'Rue barrée',   icone: '🚧', type: 'travaux',     ...rueBarreePres(.28, .5) },
-  { id: 'travaux-3',   nom: 'Rue barrée',   icone: '🚧', type: 'travaux',     ...rueBarreePres(.68, .58) },
+  { id: 'mairie',      nom: 'Mairie',       type: 'mairie',      ...lieuPres(.52, .45, 5) },
+  { id: 'supermarche', nom: 'Supermarché',  type: 'supermarche', ...lieuPres(.92, .94, 4), arrivee: true },
+  { id: 'ecole',       nom: 'École',        type: 'ecole',       ...lieuPres(.1, .08, 4) },
+  { id: 'gare',        nom: 'Gare',         type: 'gare',        ...lieuPres(.9, .08, 5) },
+  { id: 'square',      nom: 'Square',       type: 'parc',        ...lieuPres(.82, .3, 4) },
+  { id: 'poste',       nom: 'La Poste',     type: 'poste',       ...lieuPres(.28, .3, 3) },
+  { id: 'boulangerie', nom: 'Boulangerie',  type: 'boulangerie', ...lieuPres(.42, .3, 2) },
+  { id: 'arret-bus',   nom: 'Arrêt de bus', type: 'arret',       ...lieuPres(.7, .42, 2) },
+  { id: 'parc',        nom: 'Parc',         type: 'parc',        ...lieuPres(.08, .52, 4) },
+  { id: 'eglise',      nom: 'Église',       type: 'eglise',      ...lieuPres(.33, .58, 3) },
+  { id: 'pharmacie',   nom: 'Pharmacie',    type: 'pharmacie',   ...lieuPres(.64, .62, 2) },
+  { id: 'place',       nom: 'Place de la fontaine', type: 'place', ...lieuPres(.42, .8, 4) },
+  { id: 'banque',      nom: 'Banque',       type: 'banque',      ...lieuPres(.72, .78, 3) },
+  { id: 'travaux-1',   nom: 'Rue barrée',   type: 'travaux',     ...rueBarreePres(.86, .85) },
+  { id: 'travaux-2',   nom: 'Rue barrée',   type: 'travaux',     ...rueBarreePres(.28, .5) },
+  { id: 'travaux-3',   nom: 'Rue barrée',   type: 'travaux',     ...rueBarreePres(.68, .58) },
 ];
 
 const parCases = (r, f) => { for (let y = r.y; y < r.y + r.h; y++) for (let x = r.x; x < r.x + r.w; x++) f(x, y); };
@@ -644,13 +644,11 @@ const DESSINS = {
     g.fillStyle = '#c99a2e'; g.beginPath(); g.arc(cx, y0 + H * .07, 6, Math.PI, 0); g.lineTo(cx + 7, y0 + H * .09); g.lineTo(cx - 7, y0 + H * .09); g.fill();
     facade(g, x0, fy, x1, y1, '#e7a978');
     g.fillStyle = 'rgba(0,0,0,.06)'; for (let yy = fy + 6; yy < y1; yy += 8) g.fillRect(x0, yy, W, 1);
-    const n = 6, ww = W / n * .5, deco = ['#f4d03f', '#e8573f', '#2f9e6a', '#3d7bd9', '#b05fc9'];
+    const n = 6, ww = W / n * .5;
     for (let r = 0; r < 2; r++) for (let i = 0; i < n; i++) {
       const xx = x0 + W * (i + .5) / n - ww / 2, yy = fy + (y1 - fy) * (.1 + r * .42);
       if (r === 1 && (i === 2 || i === 3)) continue;
       fenetre(g, xx, yy, ww, (y1 - fy) * .26, null);
-      g.fillStyle = choisir(deco); g.beginPath(); g.arc(xx + ww * .3, yy + (y1 - fy) * .08, 3.5, 0, 7); g.fill();
-      g.fillStyle = choisir(deco); g.fillRect(xx + ww * .55, yy + (y1 - fy) * .14, 5, 5);
     }
     // porte double
     porte(g, cx - W * .1, y1 - (y1 - fy) * .4, W * .1 - 1, (y1 - fy) * .4 - 3, '#3d7bd9');
@@ -955,7 +953,13 @@ function dessinerCarte() {
   }
 
 
-  return c;
+  // Palette légèrement désaturée pour un rendu plus sobre
+  const sobre = document.createElement('canvas');
+  sobre.width = c.width; sobre.height = c.height;
+  const sg = sobre.getContext('2d');
+  sg.filter = 'saturate(0.72) brightness(1.02)';
+  sg.drawImage(c, 0, 0);
+  return sobre;
 }
 
 /* ==========================================================================
@@ -1026,7 +1030,6 @@ let minuteurBandeau = null;
 function signalerLieu(lieu) {
   etat.surbrillance = { lieu, t: performance.now() };
   if (!CONFIG.bandeau) return;
-  $('repere-icone').textContent = lieu.icone;
   $('repere-nom').textContent = lieu.nom;
   $('repere').classList.add('visible');
   clearTimeout(minuteurBandeau);
@@ -1038,9 +1041,9 @@ function finDePartie(gagne) {
   etat.fin = performance.now();
   etat.tenus = [];
   majCroix();
-  $('titre-fin').textContent = gagne ? '🛒 Supermarché trouvé !' : '👣 Plus de pas !';
+  $('titre-fin').textContent = gagne ? 'Supermarché atteint' : 'Nombre de pas épuisé';
   $('message-fin').hidden = gagne;
-  $('message-fin').textContent = gagne ? '' : "Le supermarché n'est pas encore en vue… Regarde ton trajet et essaie un autre chemin.";
+  $('message-fin').textContent = gagne ? '' : "Le supermarché n'a pas été atteint dans la limite de pas. Le trajet parcouru peut servir de base à l'échange.";
   const s = Math.round((etat.fin - etat.debut) / 1000);
   $('stat-temps').textContent = `${Math.floor(s / 60)}:${String(s % 60).padStart(2, '0')}`;
   $('stat-pas').textContent = CONFIG.pasMax > 0 ? `${etat.pas} / ${CONFIG.pasMax}` : etat.pas;
@@ -1080,16 +1083,28 @@ function maj(dt) {
 }
 
 /* --- Rendu --- */
-function dessinerJoueur(c, t) {
+function dessinerJoueur(c) {
   const x = etat.fx * T + T / 2, y = etat.fy * T + T / 2;
-  const bob = etat.depl ? Math.sin(t / 60) * 2 : 0;
-  c.fillStyle = 'rgba(0,0,0,.28)'; c.beginPath(); c.ellipse(x, y + T * .22, T * .22, T * .09, 0, 0, 7); c.fill();
-  c.fillStyle = '#2f6fe0'; c.beginPath(); c.ellipse(x, y + T * .05 + bob, T * .17, T * .2, 0, 0, 7); c.fill();
-  c.fillStyle = '#f2c9a0'; c.beginPath(); c.arc(x, y - T * .2 + bob, T * .13, 0, 7); c.fill();
-  c.fillStyle = '#3a2a1e'; c.beginPath(); c.arc(x, y - T * .24 + bob, T * .13, Math.PI, 0); c.fill();
   const [dx, dy] = DIRS[etat.dir];
-  if (dy >= 0) { c.fillStyle = '#222'; c.beginPath(); c.arc(x - 3 + dx * 4, y - T * .19 + bob, 1.8, 0, 7); c.arc(x + 3 + dx * 4, y - T * .19 + bob, 1.8, 0, 7); c.fill(); }
-  c.strokeStyle = '#fff'; c.lineWidth = 2.5; c.beginPath(); c.ellipse(x, y + T * .05 + bob, T * .17, T * .2, 0, 0, 7); c.stroke();
+  c.save();
+  c.translate(x, y);
+  c.fillStyle = 'rgba(0,0,0,.25)'; c.beginPath(); c.ellipse(T * .03, T * .05, T * .25, T * .25, 0, 0, 7); c.fill();
+  c.rotate(Math.atan2(dy, dx) + Math.PI / 2);   // l'avant du piéton est vers le haut du repère local
+  // repère de direction
+  c.fillStyle = 'rgba(255,255,255,.9)';
+  c.beginPath(); c.moveTo(0, -T * .4); c.lineTo(T * .09, -T * .29); c.lineTo(-T * .09, -T * .29); c.closePath(); c.fill();
+  // silhouette : contour blanc puis épaules, bras et tête
+  const corps = (marge) => {
+    c.beginPath(); c.ellipse(0, T * .03, T * .25 + marge, T * .13 + marge, 0, 0, 7); c.fill();
+    c.beginPath(); c.arc(0, -T * .02, T * .12 + marge, 0, 7); c.fill();
+  };
+  c.fillStyle = '#fff'; corps(2.5);
+  c.fillStyle = '#2f4b6b'; corps(0);
+  c.fillStyle = '#263d57';
+  c.beginPath(); c.arc(-T * .22, T * .04, T * .055, 0, 7); c.arc(T * .22, T * .04, T * .055, 0, 7); c.fill();
+  c.fillStyle = '#e2b996'; c.beginPath(); c.arc(0, -T * .03, T * .1, 0, 7); c.fill();
+  c.fillStyle = '#3b3029'; c.beginPath(); c.arc(0, -T * .01, T * .1, Math.PI * 1.15, Math.PI * 1.85, true); c.fill();
+  c.restore();
 }
 
 function etiquette(c, txt, x, y, fond = '#fff', encre = '#1d2430', taille = T * .26) {
@@ -1157,12 +1172,12 @@ function rendu(now) {
     ctx.strokeRect(survol.x * T + 2, survol.y * T + 2, T - 4, T - 4);
   }
   if (!global) dessinerSurbrillance(ctx, now);
-  dessinerJoueur(ctx, now);
+  dessinerJoueur(ctx);
   if (global) {
     const taille = Math.max(T * .26, 13 * dpr / ech);
     for (const l of LIEUX) {
       const r = l.bat || l.bloque[0];
-      etiquette(ctx, `${l.icone} ${l.nom}`, (r.x + r.w / 2) * T, r.y * T + T * .35, l.arrivee ? '#2f9e6a' : '#fff', l.arrivee ? '#fff' : '#1d2430', taille);
+      etiquette(ctx, l.nom, (r.x + r.w / 2) * T, r.y * T + T * .35, l.arrivee ? '#2f9e6a' : '#fff', l.arrivee ? '#fff' : '#1d2430', taille);
     }
     etiquette(ctx, 'Départ', (CONFIG.depart.x + .5) * T, CONFIG.depart.y * T - T * .1, '#e8573f', '#fff', taille);
   }
@@ -1296,8 +1311,8 @@ function regenerer() {
 const optDepart = $('opt-depart');
 function remplirDeparts() {
   optDepart.innerHTML = '';
-  for (const l of LIEUX.filter(l => l.bat && !l.arrivee)) optDepart.add(new Option(`Devant : ${l.icone} ${l.nom}`, l.id));
-  if (CONFIG.departLieu === 'carte') optDepart.add(new Option('📍 Point choisi sur la carte', 'carte'));
+  for (const l of LIEUX.filter(l => l.bat && !l.arrivee)) optDepart.add(new Option(`Devant : ${l.nom}`, l.id));
+  if (CONFIG.departLieu === 'carte') optDepart.add(new Option('Point choisi sur la carte', 'carte'));
   optDepart.value = CONFIG.departLieu;
 }
 optDepart.onchange = () => {
@@ -1324,7 +1339,7 @@ function commencerChoix() {
   fermerReglages();
   $('ecran-accueil').hidden = true;
   $('ecran-fin').hidden = true;
-  $('texte-choix').textContent = '📍 Touchez une rue pour placer le départ';
+  $('texte-choix').textContent = 'Cliquez ou touchez une rue pour placer le départ';
   $('bandeau-choix').hidden = false;
   majCroix();
 }
@@ -1342,9 +1357,9 @@ canvas.addEventListener('pointerdown', e => {
   const c = caseSousPointeur(e);
   if (!caseDepartValide(c.x, c.y)) {
     survol = c;
-    $('texte-choix').textContent = '✋ Choisissez une case de rue (pas le supermarché)';
+    $('texte-choix').textContent = 'Choisissez une case de rue (hors supermarché)';
     clearTimeout(minuteurChoix);
-    minuteurChoix = setTimeout(() => { $('texte-choix').textContent = '📍 Touchez une rue pour placer le départ'; }, 1800);
+    minuteurChoix = setTimeout(() => { $('texte-choix').textContent = 'Cliquez ou touchez une rue pour placer le départ'; }, 1800);
     return;
   }
   CONFIG.depart = c;
