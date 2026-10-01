@@ -22,7 +22,8 @@
   }
   canvas#jeu { display: block; width: 100vw; height: 100vh; }
 
-  .hud { position: fixed; top: 12px; right: 12px; display: flex; gap: 8px; z-index: 5; }
+  .hud { position: fixed; top: 12px; right: 12px; display: flex; gap: 8px; z-index: 11; }
+  #ecran-reglages { z-index: 20; }
   .btn-rond {
     width: 52px; height: 52px; border-radius: 50%; border: none; cursor: pointer;
     background: rgba(255,255,255,.94); font-size: 24px; line-height: 1;
@@ -90,12 +91,41 @@
   .reglage small { display: block; color: var(--doux); font-weight: 400; }
   .reglage input[type=checkbox] { width: 24px; height: 24px; accent-color: var(--accent); }
   .graine { display: flex; gap: 8px; }
-  .graine input {
+  .graine input, .champ {
     width: 110px; font-size: 18px; font-weight: 700; padding: 10px 12px;
     border: 2px solid #d5dae1; border-radius: 12px; color: var(--encre);
   }
-  .graine input:focus { outline: none; border-color: var(--accent); }
+  .graine input:focus, .champ:focus { outline: none; border-color: var(--accent); }
+  .niveaux { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; padding: 10px 0 12px; border-bottom: 1px solid #e6e9ee; }
+  .niveaux span { color: var(--doux); font-weight: 600; font-size: 14px; margin-right: 4px; }
+  .niveaux .btn { padding: 8px 12px; font-size: 14px; }
+  .compteur {
+    position: fixed; left: 18px; bottom: 18px; z-index: 5;
+    display: flex; align-items: center; gap: 10px;
+    background: rgba(255,255,255,.94); border-radius: 18px; padding: 10px 16px;
+    box-shadow: 0 2px 10px rgba(0,0,0,.35); transition: background .3s;
+  }
+  .compteur[hidden] { display: none; }
+  .compteur .icone { font-size: 26px; }
+  .compteur b { font-size: 34px; line-height: 1; min-width: 1.6em; text-align: center; }
+  .compteur small { color: var(--doux); font-weight: 700; font-size: 12px; line-height: 1.2; }
+  .compteur.alerte { background: #ffe1d6; animation: pulse 1s ease-in-out infinite; }
+  .compteur.alerte b { color: #c2311b; }
+  @keyframes pulse { 50% { transform: scale(1.06); } }
   .graine .btn { padding: 10px 14px; }
+  .reglage select {
+    font-size: 16px; font-weight: 600; padding: 10px 12px; max-width: 230px;
+    border: 2px solid #d5dae1; border-radius: 12px; color: var(--encre); background: #fff;
+  }
+  .reglage select:focus { outline: none; border-color: var(--accent); }
+  .bandeau-choix {
+    position: fixed; top: 16px; left: 50%; transform: translateX(-50%); z-index: 7;
+    display: flex; align-items: center; gap: 14px; max-width: calc(100vw - 100px);
+    background: #fff; border-radius: 999px; padding: 8px 8px 8px 22px;
+    box-shadow: 0 6px 22px rgba(0,0,0,.4); font-weight: 800; font-size: 18px;
+  }
+  .bandeau-choix[hidden] { display: none; }
+  .bandeau-choix .btn { padding: 10px 16px; font-size: 16px; }
   .reglage input[type=range] { width: 140px; accent-color: var(--accent); }
 
   .barre-bilan {
@@ -117,6 +147,10 @@
 
 <div class="repere" id="repere"><span class="pastille" id="repere-icone"></span><span id="repere-nom"></span></div>
 
+<div class="compteur" id="compteur" hidden>
+  <span class="icone">👣</span><b id="compteur-reste">0</b><small>pas<br>restants</small>
+</div>
+
 <div class="hud">
   <button class="btn-rond" id="btn-reglages" title="Réglages animateur" aria-label="Réglages">⚙️</button>
 </div>
@@ -126,6 +160,11 @@
   <button class="g" data-dir="gauche" aria-label="Gauche">◀</button>
   <button class="d" data-dir="droite" aria-label="Droite">▶</button>
   <button class="b" data-dir="bas" aria-label="Bas">▼</button>
+</div>
+
+<div class="bandeau-choix" id="bandeau-choix" hidden>
+  <span id="texte-choix">📍 Touchez une rue pour placer le départ</span>
+  <button class="btn" id="btn-annuler-choix">Annuler</button>
 </div>
 
 <div class="barre-bilan" id="barre-bilan" hidden>
@@ -149,7 +188,8 @@
 <!-- Écran de fin -->
 <div class="ecran" id="ecran-fin" hidden>
   <div class="boite">
-    <h1>🛒 Supermarché trouvé !</h1>
+    <h1 id="titre-fin">🛒 Supermarché trouvé !</h1>
+    <p class="sous" id="message-fin" hidden></p>
     <div class="stats">
       <div class="stat"><b id="stat-temps">0:00</b><span>temps</span></div>
       <div class="stat"><b id="stat-pas">0</b><span>pas</span></div>
@@ -177,6 +217,13 @@
       <button class="btn principal" id="btn-generer">Générer la ville</button>
     </div>
     <div class="reglage">
+      <label for="opt-depart">Point de départ<small>Où le joueur commence la partie</small></label>
+      <select id="opt-depart"></select>
+    </div>
+    <div class="actions" style="margin-top:12px">
+      <button class="btn" id="btn-depart-carte">📍 Choisir sur la carte</button>
+    </div>
+    <div class="reglage">
       <label for="opt-animateur">Mode animateur<small>Voir toute la carte, les noms des lieux et les zones de passage</small></label>
       <input type="checkbox" id="opt-animateur">
     </div>
@@ -187,6 +234,21 @@
     <div class="reglage">
       <label for="opt-rayon">Distance de vision<small id="val-rayon"></small></label>
       <input type="range" id="opt-rayon" min="1.5" max="6" step="0.5">
+    </div>
+    <div class="reglage">
+      <label for="opt-pasmax">Nombre de pas maximum<small id="info-pas">0 = illimité</small></label>
+      <input type="number" id="opt-pasmax" class="champ" min="0" step="1" inputmode="numeric">
+    </div>
+    <div class="niveaux">
+      <span>Proposer :</span>
+      <button class="btn" data-marge="2">Facile</button>
+      <button class="btn" data-marge="1.5">Moyen</button>
+      <button class="btn" data-marge="1.2">Difficile</button>
+      <button class="btn" data-marge="0">Illimité</button>
+    </div>
+    <div class="reglage">
+      <label for="opt-compteur">Afficher les pas restants<small>Compteur en bas à gauche pendant la partie</small></label>
+      <input type="checkbox" id="opt-compteur" checked>
     </div>
     <div class="reglage">
       <label for="opt-bandeau">Afficher le nom du lieu<small>Bandeau en haut de l'écran au passage devant un repère</small></label>
@@ -311,14 +373,21 @@ function rueBarreePres(fx, fy) {
    CONFIGURATION — modifiable facilement
    ========================================================================== */
 const CONFIG = {
-  depart: null,              // calculé plus bas : le carrefour juste à côté de la mairie
+  depart: null,              // par défaut devant la mairie ; modifiable depuis le menu ⚙️
   brouillard: true,          // vision limitée autour du joueur
   rayonVision: 3,            // en cases
   bandeau: true,             // afficher le nom du lieu au passage
   dureeBandeau: 2600,        // ms
   dureePas: 0.2,             // secondes pour avancer d'une case
   animateur: false,
+  pasMax: 0,                 // nombre de pas maximum (0 = illimité) ; modifiable depuis le menu ⚙️
+  compteur: true,            // afficher les pas restants pendant la partie
 };
+try {
+  const v = parseInt(localStorage.getItem('jnai-pas-max'), 10);
+  if (Number.isFinite(v) && v >= 0) CONFIG.pasMax = v;
+  if (localStorage.getItem('jnai-compteur') === '0') CONFIG.compteur = false;
+} catch (e) {}
 
 /* Lieux repères. Les premiers de la liste sont placés en priorité. */
 const definirLieux = () => [
@@ -349,14 +418,29 @@ function genererVille(graine) {
   blocsPris = new Set();
   casesBloquees = new Set();
   LIEUX = definirLieux().filter(l => l.zones);
-  const m = LIEUX.find(l => l.id === 'mairie');
-  CONFIG.depart = { x: m.bat.x - 1, y: m.bat.y + 3 };
+  CONFIG.departLieu = 'mairie';
+  CONFIG.depart = departDevant(LIEUX.find(l => l.id === 'mairie'));
   praticable = Array.from({ length: ROWS }, (_, y) => Array.from({ length: COLS }, (_, x) => estRoute(x, y)));
   zones = Array.from({ length: ROWS }, () => Array(COLS).fill(null));
   for (const l of LIEUX) {
     (l.bloque || []).forEach(r => parCases(r, (x, y) => { praticable[y][x] = false; }));
     l.zones.forEach(r => parCases(r, (x, y) => { zones[y][x] = l; }));
   }
+  chargerDepart();
+}
+
+/* Point de départ : le carrefour juste à gauche de la façade d'un lieu, ou une case choisie sur la carte.
+   Il est mémorisé pour chaque numéro de ville. */
+function departDevant(l) { return { x: l.bat.x - 1, y: l.bat.y + 3 }; }
+function caseDepartValide(x, y) { return !!(praticable[y] && praticable[y][x]) && !(zones[y][x] && zones[y][x].arrivee); }
+function chargerDepart() {
+  try {
+    const d = JSON.parse(localStorage.getItem('jnai-depart-' + GRAINE));
+    if (d && caseDepartValide(d.x, d.y)) { CONFIG.depart = { x: d.x, y: d.y }; CONFIG.departLieu = d.lieu || 'carte'; }
+  } catch (e) {}
+}
+function sauverDepart() {
+  try { localStorage.setItem('jnai-depart-' + GRAINE, JSON.stringify({ x: CONFIG.depart.x, y: CONFIG.depart.y, lieu: CONFIG.departLieu })); } catch (e) {}
 }
 
 function lireGraineSauvee() {
@@ -874,7 +958,7 @@ function reinitialiser() {
   const { x, y } = CONFIG.depart;
   Object.assign(etat, {
     x, y, fx: x, fy: y, dir: 'bas', depl: null, tenus: [],
-    trace: [[x, y]], pas: 0, zone: null, croises: new Set(), surbrillance: null,
+    trace: [[x, y]], pas: 0, zone: zones[y][x] ? zones[y][x].id : null, croises: new Set(), surbrillance: null,
     debut: performance.now(), fin: 0,
   });
 }
@@ -885,12 +969,40 @@ function arriveSurCase() {
   etat.trace.push([etat.x, etat.y]);
   const lieu = zones[etat.y][etat.x];
   const id = lieu ? lieu.id : null;
-  if (id === etat.zone) return;
-  etat.zone = id;
-  if (!lieu) return;
-  etat.croises.add(lieu.id);
-  signalerLieu(lieu);
-  if (lieu.arrivee) victoire();
+  if (id !== etat.zone) {
+    etat.zone = id;
+    if (lieu) {
+      etat.croises.add(lieu.id);
+      signalerLieu(lieu);
+      if (lieu.arrivee) { victoire(); return; }
+    }
+  }
+  majCompteur();
+  if (CONFIG.pasMax > 0 && etat.pas >= CONFIG.pasMax) defaite();
+}
+
+function majCompteur() {
+  const actif = etat.phase === 'jeu' && CONFIG.pasMax > 0 && CONFIG.compteur && !choixDepart;
+  $('compteur').hidden = !actif;
+  if (!actif) return;
+  const reste = Math.max(0, CONFIG.pasMax - etat.pas);
+  $('compteur-reste').textContent = reste;
+  $('compteur').classList.toggle('alerte', reste <= Math.max(5, Math.round(CONFIG.pasMax * .15)));
+}
+
+/* Longueur du trajet le plus court entre le départ et le supermarché (en pas) */
+function plusCourtChemin() {
+  const { x, y } = CONFIG.depart;
+  const dist = new Map([[x + ',' + y, 0]]), file = [[x, y]];
+  for (let i = 0; i < file.length; i++) {
+    const [cx, cy] = file[i], d = dist.get(cx + ',' + cy), z = zones[cy][cx];
+    if (z && z.arrivee) return d;
+    for (const [dx, dy] of Object.values(DIRS)) {
+      const nx = cx + dx, ny = cy + dy, k = nx + ',' + ny;
+      if (praticable[ny] && praticable[ny][nx] && !dist.has(k)) { dist.set(k, d + 1); file.push([nx, ny]); }
+    }
+  }
+  return null;
 }
 
 let minuteurBandeau = null;
@@ -904,17 +1016,22 @@ function signalerLieu(lieu) {
   minuteurBandeau = setTimeout(() => $('repere').classList.remove('visible'), CONFIG.dureeBandeau);
 }
 
-function victoire() {
+function finDePartie(gagne) {
   etat.phase = 'fin';
   etat.fin = performance.now();
   etat.tenus = [];
   majCroix();
+  $('titre-fin').textContent = gagne ? '🛒 Supermarché trouvé !' : '👣 Plus de pas !';
+  $('message-fin').hidden = gagne;
+  $('message-fin').textContent = gagne ? '' : "Le supermarché n'est pas encore en vue… Regarde ton trajet et essaie un autre chemin.";
   const s = Math.round((etat.fin - etat.debut) / 1000);
   $('stat-temps').textContent = `${Math.floor(s / 60)}:${String(s % 60).padStart(2, '0')}`;
-  $('stat-pas').textContent = etat.pas;
+  $('stat-pas').textContent = CONFIG.pasMax > 0 ? `${etat.pas} / ${CONFIG.pasMax}` : etat.pas;
   $('stat-lieux').textContent = [...etat.croises].filter(id => !LIEUX.find(l => l.id === id).arrivee).length;
   setTimeout(() => { $('ecran-fin').hidden = false; }, 900);
 }
+const victoire = () => finDePartie(true);
+const defaite = () => finDePartie(false);
 
 function demarrer() {
   reinitialiser();
@@ -983,7 +1100,7 @@ function rendu(now) {
   ctx.setTransform(1, 0, 0, 1, 0, 0);
   ctx.fillStyle = '#1d2430'; ctx.fillRect(0, 0, W, H);
 
-  const global = CONFIG.animateur || etat.phase === 'bilan';
+  const global = CONFIG.animateur || etat.phase === 'bilan' || choixDepart;
   const mondeW = COLS * T, mondeH = ROWS * T;
   let ech, ox, oy;
   if (global) {
@@ -996,6 +1113,7 @@ function rendu(now) {
     ox = mondeW * ech > W ? Math.min(0, Math.max(W - mondeW * ech, ox)) : (W - mondeW * ech) / 2;
     oy = mondeH * ech > H ? Math.min(0, Math.max(H - mondeH * ech, oy)) : (H - mondeH * ech) / 2;
   }
+  vue = { ech, ox, oy };
   ctx.setTransform(ech, 0, 0, ech, ox, oy);
   ctx.imageSmoothingQuality = 'high';
   ctx.drawImage(CARTE, 0, 0);
@@ -1013,6 +1131,13 @@ function rendu(now) {
     ctx.setLineDash([T * .2, T * .14]); ctx.beginPath();
     etat.trace.forEach(([x, y], i) => i ? ctx.lineTo(x * T + T / 2, y * T + T / 2) : ctx.moveTo(x * T + T / 2, y * T + T / 2));
     ctx.stroke(); ctx.restore();
+  }
+  if (choixDepart && survol) {
+    const ok = caseDepartValide(survol.x, survol.y);
+    ctx.fillStyle = ok ? 'rgba(232,87,63,.55)' : 'rgba(0,0,0,.25)';
+    ctx.fillRect(survol.x * T, survol.y * T, T, T);
+    ctx.strokeStyle = ok ? '#e8573f' : 'rgba(0,0,0,.4)'; ctx.lineWidth = 4;
+    ctx.strokeRect(survol.x * T + 2, survol.y * T + 2, T - 4, T - 4);
   }
   if (!global) dessinerSurbrillance(ctx, now);
   dessinerJoueur(ctx, now);
@@ -1057,7 +1182,8 @@ requestAnimationFrame(boucle);
 function appuyer(dir) { if (!etat.tenus.includes(dir)) etat.tenus.push(dir); majCroix(); }
 function relacher(dir) { etat.tenus = etat.tenus.filter(d => d !== dir); majCroix(); }
 function majCroix() {
-  $('croix').hidden = etat.phase !== 'jeu';
+  $('croix').hidden = etat.phase !== 'jeu' || choixDepart;
+  majCompteur();
   document.querySelectorAll('.croix button').forEach(b => b.classList.toggle('actif', etat.tenus.includes(b.dataset.dir)));
 }
 
@@ -1081,7 +1207,7 @@ $('btn-rejouer').onclick = demarrer;
 $('btn-rejouer-bilan').onclick = demarrer;
 $('btn-trajet').onclick = () => { etat.phase = 'bilan'; $('ecran-fin').hidden = true; $('barre-bilan').hidden = false; };
 
-function ouvrirReglages() { etat.tenus = []; majCroix(); $('ecran-reglages').hidden = false; }
+function ouvrirReglages() { etat.tenus = []; majCroix(); majInfoPas(); $('ecran-reglages').hidden = false; }
 function fermerReglages() { $('ecran-reglages').hidden = true; }
 $('btn-reglages').onclick = ouvrirReglages;
 $('btn-fermer-reglages').onclick = fermerReglages;
@@ -1097,22 +1223,120 @@ $('opt-animateur').onchange = e => { CONFIG.animateur = e.target.checked; };
 $('opt-brouillard').onchange = e => { CONFIG.brouillard = e.target.checked; };
 $('opt-bandeau').onchange = e => { CONFIG.bandeau = e.target.checked; };
 
+/* --- Nombre de pas maximum --- */
+const optPasMax = $('opt-pasmax');
+let cheminMin = null;
+function majInfoPas() {
+  cheminMin = plusCourtChemin();
+  $('info-pas').textContent = (cheminMin ? `Trajet le plus court : ${cheminMin} pas · ` : '') + '0 = illimité';
+  optPasMax.value = CONFIG.pasMax;
+}
+function changerPasMax(n) {
+  CONFIG.pasMax = Math.max(0, n);
+  optPasMax.value = CONFIG.pasMax;
+  try { localStorage.setItem('jnai-pas-max', String(CONFIG.pasMax)); } catch (e) {}
+  majCompteur();
+}
+optPasMax.addEventListener('input', () => { const n = parseInt(optPasMax.value, 10); if (Number.isFinite(n)) changerPasMax(n); });
+optPasMax.addEventListener('keydown', e => e.stopPropagation());
+document.querySelectorAll('.niveaux .btn').forEach(b => b.onclick = () => {
+  const marge = parseFloat(b.dataset.marge);
+  changerPasMax(marge && cheminMin ? Math.ceil(cheminMin * marge) : 0);
+});
+$('opt-compteur').checked = CONFIG.compteur;
+$('opt-compteur').onchange = e => {
+  CONFIG.compteur = e.target.checked;
+  try { localStorage.setItem('jnai-compteur', CONFIG.compteur ? '1' : '0'); } catch (e2) {}
+  majCompteur();
+};
+majInfoPas();
+
 const optGraine = $('opt-graine');
 optGraine.value = GRAINE;
-function regenerer() {
-  const n = parseInt(optGraine.value, 10);
-  if (!Number.isFinite(n) || n < 0) { optGraine.value = GRAINE; return; }
-  genererVille(n);
-  CARTE = dessinerCarte();
-  try { localStorage.setItem('jnai-graine', String(n)); } catch (e) {}
+/* Remet le joueur au départ (partie relancée si elle était en cours) */
+function appliquerDepart() {
   reinitialiser();
   if (etat.phase !== 'accueil') etat.phase = 'jeu';
   $('ecran-fin').hidden = true;
   $('barre-bilan').hidden = true;
   $('repere').classList.remove('visible');
   majCroix();
+  majInfoPas();
+}
+
+function regenerer() {
+  const n = parseInt(optGraine.value, 10);
+  if (!Number.isFinite(n) || n < 0) { optGraine.value = GRAINE; return; }
+  genererVille(n);
+  CARTE = dessinerCarte();
+  try { localStorage.setItem('jnai-graine', String(n)); } catch (e) {}
+  remplirDeparts();
+  appliquerDepart();
   fermerReglages();
 }
+
+/* --- Point de départ --- */
+const optDepart = $('opt-depart');
+function remplirDeparts() {
+  optDepart.innerHTML = '';
+  for (const l of LIEUX.filter(l => l.bat && !l.arrivee)) optDepart.add(new Option(`Devant : ${l.icone} ${l.nom}`, l.id));
+  if (CONFIG.departLieu === 'carte') optDepart.add(new Option('📍 Point choisi sur la carte', 'carte'));
+  optDepart.value = CONFIG.departLieu;
+}
+optDepart.onchange = () => {
+  const l = LIEUX.find(l => l.id === optDepart.value);
+  if (!l) return;
+  CONFIG.depart = departDevant(l);
+  CONFIG.departLieu = l.id;
+  sauverDepart();
+  remplirDeparts();
+  appliquerDepart();
+};
+remplirDeparts();
+
+let choixDepart = false, survol = null, vue = { ech: 1, ox: 0, oy: 0 }, minuteurChoix = null;
+function caseSousPointeur(e) {
+  const dpr = window.devicePixelRatio || 1;
+  return {
+    x: Math.floor((e.clientX * dpr - vue.ox) / vue.ech / T),
+    y: Math.floor((e.clientY * dpr - vue.oy) / vue.ech / T),
+  };
+}
+function commencerChoix() {
+  choixDepart = true; survol = null;
+  fermerReglages();
+  $('ecran-accueil').hidden = true;
+  $('ecran-fin').hidden = true;
+  $('texte-choix').textContent = '📍 Touchez une rue pour placer le départ';
+  $('bandeau-choix').hidden = false;
+  majCroix();
+}
+function finirChoix() {
+  choixDepart = false; survol = null;
+  $('bandeau-choix').hidden = true;
+  if (etat.phase === 'accueil') $('ecran-accueil').hidden = false;
+  majCroix();
+}
+$('btn-depart-carte').onclick = commencerChoix;
+$('btn-annuler-choix').onclick = () => { finirChoix(); ouvrirReglages(); };
+canvas.addEventListener('pointermove', e => { if (choixDepart) survol = caseSousPointeur(e); });
+canvas.addEventListener('pointerdown', e => {
+  if (!choixDepart) return;
+  const c = caseSousPointeur(e);
+  if (!caseDepartValide(c.x, c.y)) {
+    survol = c;
+    $('texte-choix').textContent = '✋ Choisissez une case de rue (pas le supermarché)';
+    clearTimeout(minuteurChoix);
+    minuteurChoix = setTimeout(() => { $('texte-choix').textContent = '📍 Touchez une rue pour placer le départ'; }, 1800);
+    return;
+  }
+  CONFIG.depart = c;
+  CONFIG.departLieu = 'carte';
+  sauverDepart();
+  remplirDeparts();
+  finirChoix();
+  appliquerDepart();
+});
 $('btn-generer').onclick = regenerer;
 $('btn-hasard').onclick = () => { optGraine.value = Math.floor(Math.random() * 10000); };
 optGraine.addEventListener('keydown', e => { if (e.key === 'Enter') regenerer(); e.stopPropagation(); });
